@@ -20,6 +20,18 @@ public interface RevistaRepository extends JpaRepository<Revista, Integer>{
 	@Query("select e from Revista e where e.nombre = ?1 and e.idRevista != ?2 ")
 	public abstract List<Revista> listaPorNombreIgualActualiza(String nombre, int idRevista);
 	
-		
+	//_______________________ SESIÓN 8 _______________________	
+	@Query("select e from Revista e where "
+			+ " e.nombre like ?1 and "
+			+ " e.frecuencia like ?2 and "
+			+ " e.fechaCreacion >=  ?3 and "
+			+ " e.fechaCreacion <=  ?4 and "
+			+ " e.estado = ?5 and "
+			+ " (?6 = -1 or e.pais.idPais = ?6) and "
+			+ " (?7 = -1 or e.tipoRevista.idDataCatalogo = ?7) ")
+	public abstract List<Revista> listaCompleja(String nombre, String frecuencia, 
+												Date fecIni, Date fecFin, 
+												int estado,	int idPais, 
+												int idTipo);
 	
 }

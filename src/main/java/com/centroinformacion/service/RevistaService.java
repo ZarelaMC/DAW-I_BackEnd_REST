@@ -19,5 +19,7 @@ public interface RevistaService {
 	//Validaciones Para Actualizar
 	public abstract List<Revista> listaRevistaPorNombreIgualActualiza(String nombre, int idRevista);
 	
-	
+	//_______________________ SESIÓN 8 _______________________	
+	//Para la consulta PC3
+	public abstract List<Revista> listaCompleja(String nombre, String frecuencia, Date fecIni, Date fecFin, int estado,	int idPais,	int idTipo);
 }
