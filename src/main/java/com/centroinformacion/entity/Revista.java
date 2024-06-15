@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.centroinformacion.util.FunctionUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -67,5 +68,20 @@ public class Revista {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idUsuarioActualiza")
 	private Usuario usuarioActualiza;
+	
+	
+		// Para el reportes - convierte los datos a cadena de texto String
+		public String getReporteEstado() {
+			return estado == 1 ? "Activo" : "Inactivo";
+		}
+		public String getReportePais() {
+			return pais.getIdPais()+"-"+pais.getNombre();
+		}
+		public String getReporteTipoRevista() {
+			return tipoRevista.getIdDataCatalogo()+"-"+tipoRevista.getDescripcion();
+		}
+		public String getReporteFechaCreacion() {
+			return FunctionUtil.getFechaString(fechaCreacion);
+		}
 
 }

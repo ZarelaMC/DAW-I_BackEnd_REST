@@ -1,10 +1,14 @@
 package com.centroinformacion.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -26,6 +30,12 @@ import com.centroinformacion.util.AppSettings;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 
 //Importaciones para reporte en Excel
 import org.apache.poi.ss.usermodel.Sheet;
@@ -210,6 +220,47 @@ public class RevistaConsultaController {
 			e.printStackTrace();
 		} 
 		
+		
+	}
+	
+	@PostMapping("/reporteRevistaPDF")
+	public void reportePDF(
+			@RequestParam(name = "nombre", required = true, defaultValue = "") String nombre,
+			@RequestParam(name = "frecuencia", required = true, defaultValue = "") String frecuencia,
+			@RequestParam(name = "fecDesde", required = true, defaultValue = "") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fecDesde,
+			@RequestParam(name = "fecHasta", required = true, defaultValue = "") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fecHasta,
+			@RequestParam(name = "estado", required = true, defaultValue = "") int estado,
+			@RequestParam(name = "idPais", required = false, defaultValue = "-1") int idPais,
+			@RequestParam(name = "idTipo", required = false, defaultValue = "-1") int idTipo,
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		try {
+
+			// PASO 1: Obtener datos de la consulta
+			List<Revista> lstSalida = revistaService.listaCompleja("%" + nombre + "%", "%" + frecuencia + "%",
+					fecDesde, fecHasta, estado, idPais, idTipo);
+			JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(lstSalida);
+
+			// PASO 2: Diseño de reporte
+			String fileReporte = request.getServletContext().getRealPath("/reporteRevista.jasper");
+
+			// PASO3: Parámetros adicionales
+			Map<String, Object> params = new HashMap<String, Object>();
+
+			JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new FileInputStream(new File(fileReporte)));
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, dataSource);
+
+			// PASO 5: Parámetros en el Header del mensajes HTTP
+			response.setContentType("application/pdf");
+			response.addHeader("Content-disposition", "attachment; filename=ReporteRevista.pdf");
+
+			// PASO 6: Se envía el PDF
+			OutputStream outStream = response.getOutputStream();
+			JasperExportManager.exportReportToPdfStream(jasperPrint, outStream);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
